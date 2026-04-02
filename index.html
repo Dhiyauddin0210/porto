@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muhammad Dhiyauddin — Network Engineer</title>
+  <meta name="description" content="Portfolio Muhammad Dhiyauddin — Network Engineer berbasis di Tangerang." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0d0d; --surface: #161616; --border: #2a2a2a;
+      --accent: #c8f135; --text: #e8e8e8; --muted: #888;
+      --font-main: 'Sora', sans-serif; --font-mono: 'DM Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-main); font-size: 16px; line-height: 1.7; overflow-x: hidden; }
+
+    #network-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2.5rem; background: rgba(13,13,13,0.75); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent); letter-spacing: 0.05em; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    section { position: relative; z-index: 1; padding: 6rem 2.5rem; max-width: 960px; margin: 0 auto; }
+    #hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding-top: 8rem; }
+
+    .hero-inner { display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: center; }
+    .hero-photo-wrap { position: relative; flex-shrink: 0; }
+    .hero-photo-frame { width: 220px; height: 260px; position: relative; }
+    .hero-photo-frame::before, .hero-photo-frame::after { content: ''; position: absolute; width: 28px; height: 28px; border-color: var(--accent); border-style: solid; z-index: 2; }
+    .hero-photo-frame::before { top: -6px; left: -6px; border-width: 2px 0 0 2px; }
+    .hero-photo-frame::after { bottom: -6px; right: -6px; border-width: 0 2px 2px 0; }
+    .inner-corners::before, .inner-corners::after { content: ''; position: absolute; width: 28px; height: 28px; border-color: var(--accent); border-style: solid; z-index: 2; }
+    .inner-corners::before { top: -6px; right: -6px; border-width: 2px 2px 0 0; }
+    .inner-corners::after { bottom: -6px; left: -6px; border-width: 0 0 2px 2px; }
+    .hero-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; display: block; filter: grayscale(20%); transition: filter 0.3s; }
+    .hero-photo:hover { filter: grayscale(0%); }
+    .photo-placeholder { width: 100%; height: 100%; border-radius: 4px; background: var(--surface); border: 1px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; color: var(--muted); font-family: var(--font-mono); font-size: 0.72rem; text-align: center; padding: 1rem; }
+    .photo-placeholder svg { opacity: 0.3; }
+    .status-badge { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); padding: 0.3rem 0.75rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); white-space: nowrap; z-index: 3; }
+    .status-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse-dot 1.8s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%, 100% { box-shadow: 0 0 0 0 rgba(200,241,53,0.6); } 50% { box-shadow: 0 0 0 5px rgba(200,241,53,0); } }
+
+    .hero-tag { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5rem; }
+    h1 { font-size: clamp(2.4rem, 6vw, 4.8rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+    h1 span { color: var(--accent); }
+    .hero-sub { font-size: 1.05rem; color: var(--muted); max-width: 480px; margin-bottom: 2.5rem; font-weight: 300; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.85rem; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+    .btn-primary { background: var(--accent); color: #0d0d0d; font-weight: 500; }
+    .btn-primary:hover { background: #d8ff45; transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--muted); background: var(--surface); }
+    .hero-scroll { margin-top: 3rem; display: flex; align-items: center; gap: 0.75rem; color: var(--muted); font-size: 0.8rem; font-family: var(--font-mono); }
+    .scroll-line { width: 40px; height: 1px; background: var(--border); }
+
+    .divider { position: relative; z-index: 1; height: 1px; background: var(--border); max-width: 960px; margin: 0 auto; }
+    .section-label { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2rem; }
+    h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem; line-height: 1.2; }
+
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .about-text p { color: var(--muted); margin-bottom: 1rem; font-weight: 300; }
+    .about-text p strong { color: var(--text); font-weight: 600; }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; margin-top: 1.5rem; }
+    .skill-tag { padding: 0.5rem 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); text-align: center; transition: all 0.2s; }
+    .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── PROJECTS ── */
+    .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+    .project-card { background: rgba(22,22,22,0.85); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: border-color 0.2s, transform 0.2s; }
+    .project-card:hover { border-color: rgba(200,241,53,0.4); transform: translateY(-3px); }
+    .project-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
+    .project-title { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; }
+    .project-desc { font-size: 0.9rem; color: var(--muted); font-weight: 300; flex: 1; }
+
+    /* ── DETAIL BUTTON ── */
+    .detail-btn { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.5rem; padding: 0.45rem 1rem; background: transparent; border: 1px solid rgba(200,241,53,0.3); border-radius: 6px; color: var(--accent); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: all 0.2s; width: fit-content; }
+    .detail-btn:hover { background: rgba(200,241,53,0.08); border-color: var(--accent); }
+    .detail-btn svg { flex-shrink: 0; }
+
+    /* ── EXPERIENCE ── */
+    .exp-list { display: flex; flex-direction: column; margin-top: 2rem; }
+    .exp-item { display: grid; grid-template-columns: 140px 1fr; gap: 2rem; padding: 1.5rem 0; border-top: 1px solid var(--border); }
+    .exp-item:last-child { border-bottom: 1px solid var(--border); }
+    .exp-year { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); padding-top: 0.3rem; }
+    .exp-role { font-weight: 600; font-size: 1rem; }
+    .exp-company { color: var(--accent); font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .exp-desc { font-size: 0.9rem; color: var(--muted); font-weight: 300; margin-bottom: 0.75rem; }
+
+    #contact { text-align: center; }
+    #contact h2 { margin-bottom: 1rem; }
+    #contact p { color: var(--muted); max-width: 480px; margin: 0 auto 2.5rem; font-weight: 300; }
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; max-width: 960px; margin: 0 auto; font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted); }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #111; border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; position: relative; animation: modalIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid var(--border); gap: 1rem; }
+    .modal-tag { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    .modal-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; }
+    .modal-close { background: var(--surface); border: 1px solid var(--border); color: var(--muted); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem; transition: all 0.2s; }
+    .modal-close:hover { color: var(--text); border-color: var(--muted); }
+    .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .modal-section-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+    .modal-desc { font-size: 0.9rem; color: var(--muted); font-weight: 300; line-height: 1.75; }
+
+    /* Gallery */
+    .modal-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; }
+    .gallery-item { border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: border-color 0.2s, transform 0.15s; position: relative; }
+    .gallery-item:hover { border-color: var(--accent); transform: scale(1.02); }
+    .gallery-item img { width: 100%; height: 135px; object-fit: cover; display: block; }
+    .gallery-item video { width: 100%; height: 135px; object-fit: cover; display: block; }
+    .media-label { padding: 0.35rem 0.6rem; font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); background: var(--surface); }
+    .play-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -65%); background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; pointer-events: none; }
+    .hint-text { margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.68rem; color: #3a3a3a; line-height: 1.7; }
+    .hint-text code { color: #555; }
+
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; inset: 0; z-index: 1100; background: rgba(0,0,0,0.95); align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.7s ease both; }
+    .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.25rem; } .nav-links { display: none; }
+      section { padding: 4rem 1.25rem; }
+      .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .hero-photo-wrap { order: -1; display: flex; justify-content: center; }
+      .hero-photo-frame { width: 160px; height: 195px; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: 0.25rem; }
+      .modal-gallery { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="network-canvas"></canvas>
+
+<nav>
+  <span class="nav-logo"> > My Portfolio < </span>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#experience">experience</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <p class="hero-tag fade-up">available for work</p>
+      <h1 class="fade-up delay-1">Halo, saya<br /><span>Muhammad<br/>Dhiyauddin.</span></h1>
+      <p class="hero-sub fade-up delay-2">Network Engineer yang berfokus pada perancangan, konfigurasi, dan pemeliharaan infrastruktur jaringan yang andal dan aman.</p>
+      <div class="hero-cta fade-up delay-3">
+        <a href="#projects" class="btn btn-primary">Lihat proyek saya &rarr;</a>
+        <a href="#contact" class="btn btn-outline">Hubungi saya</a>
+      </div>
+      <div class="hero-scroll fade-up delay-4"><div class="scroll-line"></div><span>scroll to explore</span></div>
+    </div>
+    <div class="hero-photo-wrap fade-up delay-5">
+      <div class="hero-photo-frame">
+        <div class="inner-corners"></div>
+        <img src="ftoadin.jpeg" alt="Muhammad Dhiyauddin" class="hero-photo"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="photo-placeholder" style="display:none;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Ganti src=<br/>"YOUR_PHOTO.jpg"</span>
+        </div>
+      </div>
+      <div class="status-badge"><div class="status-dot"></div>available for work</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ ABOUT ══ -->
+<section id="about">
+  <p class="section-label">01 &mdash; about me</p>
+  <div class="about-grid">
+    <div class="about-text">
+      <h2>Sedikit tentang saya</h2>
+      <p>Saya adalah <strong>Network Engineer</strong> yang berpengalaman dalam merancang dan mengelola infrastruktur jaringan skala enterprise.</p>
+      <p>Keahlian saya mencakup <strong>konfigurasi router &amp; switch Cisco</strong>, manajemen firewall, dan troubleshooting jaringan kompleks.</p>
+      <p>Di luar pekerjaan, saya aktif mengikuti perkembangan teknologi jaringan dan sertifikasi industri.</p>
+      <a href="cv.pdf" class="btn btn-outline" style="margin-top:1rem; display:inline-flex;" download>&darr; Lihat CV</a>
+    </div>
+    <div>
+      <p class="section-label" style="margin-bottom:1rem;">tech stack</p>
+      <div class="skills-grid">
+        <div class="skill-tag">Cisco</div><div class="skill-tag">Mikrotik</div>
+        <div class="skill-tag">WinBox</div><div class="skill-tag">Arduino Ide</div>
+        <div class="skill-tag">Firewall</div><div class="skill-tag">Acces Point</div>
+        <div class="skill-tag">Mysql</div><div class="skill-tag">Linux</div>
+        <div class="skill-tag">Proxmox</div><div class="skill-tag">VsCode</div>
+        <div class="skill-tag">Figma</div><div class="skill-tag">Canva</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ PROJECTS ══ -->
+<section id="projects">
+  <p class="section-label">02 &mdash; projects</p>
+  <h2>Proyek pilihan</h2>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <span class="project-num">01</span>
+      <div class="project-title">Smart Car Mini</div>
+      <p class="project-desc">Mobil mini cerdas dengan sensor ultrasonik HC-SR04 untuk menghindari rintangan secara otomatis, dilengkapi fitur penyedot debu berbasis dinamo kipas. Prototipe smart cleaning robot berbasis Arduino Uno.</p>
+      <button class="detail-btn" onclick="openModal('proj-01')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Lihat Bukti &amp; Detail
+      </button>
+    </div>
+
+    <div class="project-card">
+      <span class="project-num">02</span>
+      <div class="project-title">Nama Proyek Dua</div>
+      <p class="project-desc">Deskripsi singkat apa yang dibuat, masalah apa yang diselesaikan, dan hasilnya seperti apa.</p>
+      <button class="detail-btn" onclick="openModal('proj-02')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Lihat Bukti &amp; Detail
+      </button>
+    </div>
+
+    <div class="project-card">
+      <span class="project-num">03</span>
+      <div class="project-title">Nama Proyek Tiga</div>
+      <p class="project-desc">Deskripsi singkat apa yang dibuat, masalah apa yang diselesaikan, dan hasilnya seperti apa.</p>
+      <button class="detail-btn" onclick="openModal('proj-03')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Lihat Bukti &amp; Detail
+      </button>
+    </div>
+
+    <div class="project-card">
+      <span class="project-num">04</span>
+      <div class="project-title">Nama Proyek Empat</div>
+      <p class="project-desc">Deskripsi singkat apa yang dibuat, masalah apa yang diselesaikan, dan hasilnya seperti apa.</p>
+      <button class="detail-btn" onclick="openModal('proj-04')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Lihat Bukti &amp; Detail
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience">
+  <p class="section-label">03 &mdash; experience</p>
+  <h2>Pengalaman kerja</h2>
+  <div class="exp-list">
+
+    <div class="exp-item">
+      <div class="exp-year">2024 &mdash; 2025</div>
+      <div>
+        <div class="exp-role">Network Engineer</div>
+        <div class="exp-company">PT Solusi Intek Indonesia</div>
+        <p class="exp-desc">Melaksanakan program PKL selama 6 bulan dengan fokus pada analisis dan pengolahan data serta dasar pemrograman dalam lingkungan kerja profesional. Terlibat dalam pengumpulan dan analisis data serta pemantauan keamanan informasi perusahaan.</p>
+        <button class="detail-btn" onclick="openModal('exp-01')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Lihat Sertifikat &amp; Bukti
+        </button>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-year">2022 &mdash; 2023</div>
+      <div>
+        <div class="exp-role">Junior Network Engineer / Internship</div>
+        <div class="exp-company">Nama Perusahaan</div>
+        <p class="exp-desc">Apa yang kamu kerjakan, teknologi yang dipakai, dan dampak yang kamu buat.</p>
+        <button class="detail-btn" onclick="openModal('exp-02')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Lihat Sertifikat &amp; Bukti
+        </button>
+      </div>
+    </div>
+
+    <div class="exp-item">
+      <div class="exp-year">2018 &mdash; 2022</div>
+      <div>
+        <div class="exp-role">S1 Teknik Informatika / Ilmu Komputer</div>
+        <div class="exp-company">Nama Universitas</div>
+        <p class="exp-desc">IPK 3.x/4.00 &middot; Skripsi tentang ... &middot; Aktif di UKM/organisasi ...</p>
+        <button class="detail-btn" onclick="openModal('exp-03')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Lihat Ijazah &amp; Sertifikat
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="contact">
+  <p class="section-label">04 &mdash; contact</p>
+  <h2>Mari berkolaborasi.</h2>
+  <p>Saya terbuka untuk peluang kerja, freelance, atau sekadar diskusi. Hubungi saya lewat email atau media sosial.</p>
+  <div class="contact-links">
+    <a href="https://mail.google.com/mail/?view=cm&to=dhiyauddintjkt@gmail.com&su=Halo%20Dhiyauddin%20-%20Mari%20Berkolaborasi&body=Halo%20Dhiyauddin%2C%0A%0ASaya%20tertarik%20untuk%20berdiskusi%20lebih%20lanjut.%0A%0ASalam%2C" class="btn btn-primary" target="_blank">dhiyauddintjkt@gmail.com &rarr;</a>
+    <a href="https://linkedin.com/in/mdhiyauddin" class="btn btn-outline" target="_blank">LinkedIn</a>
+    <a href="https://github.com/mdhiyauddin" class="btn btn-outline" target="_blank">GitHub</a>
+  </div>
+</section>
+
+<footer>
+  <span>&copy; 2025 Muhammad Dhiyauddin</span>
+  <span>built with &hearts; &amp; html/css</span>
+</footer>
+
+<!-- ══════════════════════════════════════
+     MODALS
+     Cara isi media:
+       Foto  → ganti src="" pada <img src="">
+       Video → ganti src="" pada <source src="">
+       Contoh: src="media/smartcar-foto1.jpg"
+══════════════════════════════════════ -->
+
+<!-- helper macro for gallery items -->
+
+<!-- ── PROJ 01 ── -->
+<div class="modal-overlay" id="modal-proj-01">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Project 01</div><div class="modal-title">Smart Car Mini</div></div>
+      <button class="modal-close" onclick="closeModal('proj-01')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Foto &amp; Video Proyek</div>
+        <div class="modal-gallery" id="g-proj-01">
+          <div class="gallery-item" data-type="img"><img src="car1.jpg" alt="Foto 1"/><div class="media-label">Foto 1</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 2"/><div class="media-label">Foto 2</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 3"/><div class="media-label">Foto 3</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="vid2.mp4" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Demo</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> tiap tile dengan path file kamu. Contoh: <code>src="smartcar-foto1.jpg"</code></p>
+      </div>
+      <div>
+        <div class="modal-section-label">Deskripsi Lengkap</div>
+        <p class="modal-desc">Mobil mini cerdas berbasis Arduino Uno dengan sensor ultrasonik HC-SR04 untuk deteksi dan penghindaran rintangan otomatis. Dilengkapi fitur penyedot debu di bagian bawah sebagai prototipe smart cleaning robot.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROJ 02 ── -->
+<div class="modal-overlay" id="modal-proj-02">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Project 02</div><div class="modal-title">Nama Proyek Dua</div></div>
+      <button class="modal-close" onclick="closeModal('proj-02')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Foto &amp; Video Proyek</div>
+        <div class="modal-gallery" id="g-proj-02">
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 1"/><div class="media-label">Foto 1</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 2"/><div class="media-label">Foto 2</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Demo</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan file foto/video proyekmu.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Deskripsi Lengkap</div>
+        <p class="modal-desc">Deskripsi lengkap proyek dua — apa yang dikerjakan, teknologi dipakai, tantangan, dan hasil akhir.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROJ 03 ── -->
+<div class="modal-overlay" id="modal-proj-03">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Project 03</div><div class="modal-title">Nama Proyek Tiga</div></div>
+      <button class="modal-close" onclick="closeModal('proj-03')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Foto &amp; Video Proyek</div>
+        <div class="modal-gallery" id="g-proj-03">
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 1"/><div class="media-label">Foto 1</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 2"/><div class="media-label">Foto 2</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Demo</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan file foto/video proyekmu.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Deskripsi Lengkap</div>
+        <p class="modal-desc">Deskripsi lengkap proyek tiga.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PROJ 04 ── -->
+<div class="modal-overlay" id="modal-proj-04">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Project 04</div><div class="modal-title">Nama Proyek Empat</div></div>
+      <button class="modal-close" onclick="closeModal('proj-04')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Foto &amp; Video Proyek</div>
+        <div class="modal-gallery" id="g-proj-04">
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 1"/><div class="media-label">Foto 1</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto 2"/><div class="media-label">Foto 2</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Demo</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan file foto/video proyekmu.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Deskripsi Lengkap</div>
+        <p class="modal-desc">Deskripsi lengkap proyek empat.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXP 01 ── -->
+<div class="modal-overlay" id="modal-exp-01">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Experience · 2024–2025</div><div class="modal-title">PT Solusi Intek Indonesia</div></div>
+      <button class="modal-close" onclick="closeModal('exp-01')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Sertifikat &amp; Dokumen</div>
+        <div class="modal-gallery" id="g-exp-01">
+          <div class="gallery-item" data-type="img"><img src="cert.jpeg" alt="Sertifikat PKL"/><div class="media-label">Sertifikat PKL</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Surat Keterangan"/><div class="media-label">Surat Keterangan</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto Kegiatan"/><div class="media-label">Foto Kegiatan</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Kegiatan</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan scan sertifikat atau foto kegiatanmu.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Detail Kegiatan</div>
+        <p class="modal-desc">Melaksanakan program PKL selama 6 bulan di PT Solusi Intek Indonesia. Fokus pada analisis dan pengolahan data, dasar pemrograman, pengumpulan data dari berbagai sumber untuk mendukung operasional, serta pemantauan keamanan informasi perusahaan.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXP 02 ── -->
+<div class="modal-overlay" id="modal-exp-02">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Experience · 2022–2023</div><div class="modal-title">Junior Network Engineer</div></div>
+      <button class="modal-close" onclick="closeModal('exp-02')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Sertifikat &amp; Dokumen</div>
+        <div class="modal-gallery" id="g-exp-02">
+          <div class="gallery-item" data-type="img"><img src="" alt="Sertifikat"/><div class="media-label">Sertifikat</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Foto Kegiatan"/><div class="media-label">Foto Kegiatan</div></div>
+          <div class="gallery-item" data-type="vid"><video muted playsinline preload="metadata"><source src="" type="video/mp4"/></video><div class="play-badge">&#9654;</div><div class="media-label">Video Kegiatan</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan file sertifikat/fotomu.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Detail Kegiatan</div>
+        <p class="modal-desc">Detail pekerjaan, teknologi yang dipakai, dan dampak yang dibuat selama internship di Nama Perusahaan.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXP 03 ── -->
+<div class="modal-overlay" id="modal-exp-03">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><div class="modal-tag">Education · 2018–2022</div><div class="modal-title">S1 Teknik Informatika</div></div>
+      <button class="modal-close" onclick="closeModal('exp-03')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="modal-section-label">Ijazah &amp; Sertifikat</div>
+        <div class="modal-gallery" id="g-exp-03">
+          <div class="gallery-item" data-type="img"><img src="" alt="Ijazah"/><div class="media-label">Ijazah</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Transkrip Nilai"/><div class="media-label">Transkrip Nilai</div></div>
+          <div class="gallery-item" data-type="img"><img src="" alt="Sertifikat Lain"/><div class="media-label">Sertifikat Lain</div></div>
+        </div>
+        <p class="hint-text">&#128161; Isi <code>src=""</code> dengan scan ijazah, transkrip, atau sertifikat lainnya.</p>
+      </div>
+      <div>
+        <div class="modal-section-label">Detail Pendidikan</div>
+        <p class="modal-desc">IPK 3.x/4.00 · Skripsi tentang ... · Aktif di UKM/organisasi kampus.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+  <img id="lb-img" src="" alt="" style="display:none;max-width:90vw;max-height:88vh;border-radius:8px;" />
+  <video id="lb-vid" controls style="display:none;max-width:90vw;max-height:88vh;border-radius:8px;"></video>
+</div>
+
+<script>
+  /* ── Init: hide empty gallery tiles ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      const type = item.dataset.type;
+      if (type === 'img') {
+        const img = item.querySelector('img');
+        if (!img || !img.getAttribute('src')) item.style.display = 'none';
+      } else if (type === 'vid') {
+        const src = item.querySelector('source');
+        if (!src || !src.getAttribute('src')) item.style.display = 'none';
+      }
+    });
+
+    /* Click handlers for gallery items */
+    document.querySelectorAll('.gallery-item[data-type="img"]').forEach(item => {
+      item.addEventListener('click', () => {
+        const img = item.querySelector('img');
+        if (img && img.src) {
+          document.getElementById('lb-img').src = img.src;
+          document.getElementById('lb-img').style.display = 'block';
+          document.getElementById('lb-vid').style.display = 'none';
+          document.getElementById('lightbox').classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+    document.querySelectorAll('.gallery-item[data-type="vid"]').forEach(item => {
+      item.addEventListener('click', () => {
+        const src = item.querySelector('source');
+        if (src && src.getAttribute('src')) {
+          const vid = document.getElementById('lb-vid');
+          vid.src = src.getAttribute('src');
+          vid.style.display = 'block';
+          document.getElementById('lb-img').style.display = 'none';
+          document.getElementById('lightbox').classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+  });
+
+  /* ── Modal ── */
+  function openModal(id) {
+    document.getElementById('modal-' + id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) {
+      if (e.target === this) { this.classList.remove('open'); document.body.style.overflow = ''; }
+    });
+  });
+
+  /* ── Lightbox ── */
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    const v = document.getElementById('lb-vid'); v.pause(); v.src = '';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(m => { m.classList.remove('open'); });
+      closeLightbox();
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* ── Network canvas ── */
+  const canvas = document.getElementById('network-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes;
+  const NODE_COUNT = 55, MAX_DIST = 160, ACC = '200, 241, 53';
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function createNodes() {
+    nodes = Array.from({length: NODE_COUNT}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*.45, vy: (Math.random()-.5)*.45,
+      r: Math.random()*1.8+1, pulse: Math.random()*Math.PI*2
+    }));
+  }
+  let packets = [];
+  function spawnPacket() {
+    if (packets.length > 8) return;
+    const a = Math.floor(Math.random()*NODE_COUNT);
+    let b; do { b = Math.floor(Math.random()*NODE_COUNT); } while(b===a);
+    packets.push({from:a, to:b, t:0, speed:.008+Math.random()*.012});
+  }
+  setInterval(spawnPacket, 1200);
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(255,255,255,0.025)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.pulse+=.025;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
+    for(let i=0;i<NODE_COUNT;i++)for(let j=i+1;j<NODE_COUNT;j++){
+      const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MAX_DIST){ctx.beginPath();ctx.strokeStyle=`rgba(${ACC},${(1-d/MAX_DIST)*.25})`;ctx.lineWidth=.7;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}
+    }
+    packets=packets.filter(p=>p.t<=1);
+    packets.forEach(p=>{
+      p.t+=p.speed;
+      const nx=nodes[p.from].x+(nodes[p.to].x-nodes[p.from].x)*p.t;
+      const ny=nodes[p.from].y+(nodes[p.to].y-nodes[p.from].y)*p.t;
+      const g=ctx.createRadialGradient(nx,ny,0,nx,ny,8);
+      g.addColorStop(0,`rgba(${ACC},.9)`);g.addColorStop(1,`rgba(${ACC},0)`);
+      ctx.beginPath();ctx.arc(nx,ny,8,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+      ctx.beginPath();ctx.arc(nx,ny,2.5,0,Math.PI*2);ctx.fillStyle=`rgba(${ACC},1)`;ctx.fill();
+    });
+    nodes.forEach(n=>{
+      const b=.4+Math.sin(n.pulse)*.15;
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fillStyle=`rgba(${ACC},${b})`;ctx.fill();
+      if(n.r>2.2){const h=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);h.addColorStop(0,`rgba(${ACC},.12)`);h.addColorStop(1,`rgba(${ACC},0)`);ctx.beginPath();ctx.arc(n.x,n.y,n.r*4,0,Math.PI*2);ctx.fillStyle=h;ctx.fill();}
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();createNodes();});
+  resize(); createNodes(); draw();
+</script>
+</body>
+</html>
